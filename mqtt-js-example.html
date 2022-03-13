@@ -1,70 +1,121 @@
 <html>
   <head>
     <title>JavaScript MQTT WebSocket Live Chat Example</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous"
+    />
+
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"
       type="text/javascript"
     ></script>
-	<!--  
+    <!--  
 
 		https://www.emqx.com/en/mqtt/public-mqtt5-broker
 	-->
-    <script type="text/javascript" language="javascript">
-      // Create a client instance
-      var host = "broker.emqx.io";
-      var port = 8083;
-      var x = Math.floor(Math.random() * 10000);
-      var cname = "user-" + x;
-      client = new Paho.MQTT.Client(host, port, cname);
-
-      // set callback handlers
-      client.onConnectionLost = onConnectionLost;
-      client.onMessageArrived = onMessageArrived;
-
-      // connect the client
-      client.connect({ onSuccess: onConnect });
-
-      // called when the client connects
-      function onConnect() {
-        // Once a connection has been made, make a subscription and send a message.
-        console.log("onConnect");
-        client.subscribe("user1_user2_inbox12154");
-   
+    <style>
+      #chat-log {
+        width: 500px !important;
+        height: 400px !important;
+        background-color: rgb(171, 205, 248);
+        
+        font-weight: 600;
+        padding: 10px;
       }
-
-      // called when the client loses its connection
-      function onConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-          console.log("onConnectionLost:" + responseObject.errorMessage);
-        }
+      .bubble1{
+        background-color: aqua;
+        color: black;
+        border-radius: 10px;
+        width: fit-content;
+        padding: 5px;
+        font-size: 16px;
+        margin-top: 2px;
       }
-
-      // called when a message arrives
-      function onMessageArrived(message) {
-		const textarea = document.getElementById('messagebody');
-		textarea.value += message.payloadString;
-
+      .bubble2{
+        background-color: rgb(218, 134, 230);
+        color: white;
+        border-radius: 10px;
+        width: fit-content;
+        padding: 5px;
+        font-size: 16px;
+        margin-top: 2px;
       }
-
-      function sendMSG() {
-		let inputVal = document.getElementById("myInput").value;
-		let time = new Date().toLocaleTimeString()
-        message = new Paho.MQTT.Message(cname +" : " +inputVal + "[ " + time + ' ] \n');
-        message.destinationName = "user1_user2_inbox12154";
-        client.send(message);
-		 document.getElementById("myInput").value = '';
-
-      }
-
-	  
-    </script>
+    </style>
   </head>
   <body>
-    <h1>MQTT WebSocket Live Chat</h1>
-	<textarea id="messagebody" id="" cols="30" rows="10" disabled></textarea> <br>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h1>MQTT WebSocket Live Chat</h1>
 
-	<input type="text" placeholder="Type something..." id="myInput">
+          <div id="chat-log"></div>
 
-    <button onclick="sendMSG()">Click me</button>
+          <!-- <textarea id="messagebody" id="" cols="30" rows="10" disabled></textarea> <br> -->
+
+          <input type="text" placeholder="Type something..." id="myInput" />
+
+          <button onclick="sendMSG()" class="btn btn-sm btn-danger">Send</button>
+        </div>
+      </div>
+    </div>
   </body>
+
+  <script type="text/javascript" language="javascript">
+    // Create a client instance
+    var host = "broker.emqx.io";
+    var port = 8083;
+    var x = Math.floor(Math.random() * 10000);
+    var cname = "user-" + x;
+    client = new Paho.MQTT.Client(host, port, cname);
+
+    // set callback handlers
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+
+    // connect the client
+    client.connect({ onSuccess: onConnect });
+
+    // called when the client connects
+    function onConnect() {
+      // Once a connection has been made, make a subscription and send a message.
+      console.log("onConnect");
+      client.subscribe("user1_user2_inbox12154");
+    }
+
+    // called when the client loses its connection
+    function onConnectionLost(responseObject) {
+      if (responseObject.errorCode !== 0) {
+        console.log("onConnectionLost:" + responseObject.errorMessage);
+      }
+    }
+
+    // called when a message arrives
+    function onMessageArrived(message) {
+      // const textarea = document.getElementById('messagebody');
+      // textarea.value += message.payloadString;
+
+      if (message.payloadString.search(cname) != -1) {
+        document.querySelector("#chat-log").innerHTML +=
+          "<p class='text-right'><span class='bubble1'>" + message.payloadString + "</span></p>";
+      } else {
+        document.querySelector("#chat-log").innerHTML +=
+          "<p class='text-left'><span class='bubble2'>" + message.payloadString + "</span></p>";
+      }
+    }
+
+    function sendMSG() {
+      let inputVal = document.getElementById("myInput").value;
+      let time = new Date().toLocaleTimeString();
+
+      message = new Paho.MQTT.Message(
+        cname + " : " + inputVal + " [ " + time + " ] \n"
+      );
+      message.destinationName = "user1_user2_inbox12154";
+      client.send(message);
+      document.getElementById("myInput").value = "";
+    }
+  </script>
 </html>
