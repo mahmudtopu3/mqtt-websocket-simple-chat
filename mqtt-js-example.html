@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <title>JavaScript MQTT WebSocket Live Chat Example</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"
+      type="text/javascript"
+    ></script>
+	<!--  
+
+		https://www.emqx.com/en/mqtt/public-mqtt5-broker
+	-->
+    <script type="text/javascript" language="javascript">
+      // Create a client instance
+      var host = "broker.emqx.io";
+      var port = 8083;
+      var x = Math.floor(Math.random() * 10000);
+      var cname = "user-" + x;
+      client = new Paho.MQTT.Client(host, port, cname);
+
+      // set callback handlers
+      client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+
+      // connect the client
+      client.connect({ onSuccess: onConnect });
+
+      // called when the client connects
+      function onConnect() {
+        // Once a connection has been made, make a subscription and send a message.
+        console.log("onConnect");
+        client.subscribe("user1_user2_inbox12154");
+   
+      }
+
+      // called when the client loses its connection
+      function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          console.log("onConnectionLost:" + responseObject.errorMessage);
+        }
+      }
+
+      // called when a message arrives
+      function onMessageArrived(message) {
+		const textarea = document.getElementById('messagebody');
+		textarea.value += message.payloadString;
+
+      }
+
+      function sendMSG() {
+		let inputVal = document.getElementById("myInput").value;
+		let time = new Date().toLocaleTimeString()
+        message = new Paho.MQTT.Message(cname +" : " +inputVal + "[ " + time + ' ] \n');
+        message.destinationName = "user1_user2_inbox12154";
+        client.send(message);
+		 document.getElementById("myInput").value = '';
+
+      }
+
+	  
+    </script>
+  </head>
+  <body>
+    <h1>MQTT WebSocket Live Chat</h1>
+	<textarea id="messagebody" id="" cols="30" rows="10" disabled></textarea> <br>
+
+	<input type="text" placeholder="Type something..." id="myInput">
+
+    <button onclick="sendMSG()">Click me</button>
+  </body>
+</html>
