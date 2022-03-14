@@ -7,7 +7,7 @@
       integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
       crossorigin="anonymous"
     />
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"
       type="text/javascript"
@@ -21,27 +21,40 @@
         width: 500px !important;
         height: 400px !important;
         background-color: rgb(171, 205, 248);
-        
-        font-weight: 600;
+        border: 2px solid black;
+        padding: 25px;
+        background: url('./back.jpg');
+        background-repeat: no-repeat;
+        background-size: auto;
         padding: 10px;
+        overflow-y: scroll;
       }
       .bubble1{
-        background-color: aqua;
+        background-color: #D9FDD3;
         color: black;
         border-radius: 10px;
         width: fit-content;
-        padding: 5px;
+        padding: 6px;
         font-size: 16px;
-        margin-top: 2px;
+        margin-top: 3px;
       }
       .bubble2{
-        background-color: rgb(218, 134, 230);
+        background-color: #FFFFFF;
         color: white;
         border-radius: 10px;
         width: fit-content;
-        padding: 5px;
+        padding: 6px;
         font-size: 16px;
         margin-top: 2px;
+        color: black;
+      }
+      #myInput {
+        width: 450px;
+       
+      }
+      .btn-group-sm>.btn, .btn-sm {
+       
+          margin-top: -84px;
       }
     </style>
   </head>
@@ -55,7 +68,7 @@
 
           <!-- <textarea id="messagebody" id="" cols="30" rows="10" disabled></textarea> <br> -->
 
-          <input type="text" placeholder="Type something..." id="myInput" />
+          <textarea id="myInput"  cols="30" rows="5" ></textarea>
 
           <button onclick="sendMSG()" class="btn btn-sm btn-danger">Send</button>
         </div>
@@ -104,6 +117,11 @@
         document.querySelector("#chat-log").innerHTML +=
           "<p class='text-left'><span class='bubble2'>" + message.payloadString + "</span></p>";
       }
+
+      
+      $('#chat-log').animate({ scrollTop: $(document).height() }, "slow");
+
+
     }
 
     function sendMSG() {
@@ -117,5 +135,12 @@
       client.send(message);
       document.getElementById("myInput").value = "";
     }
+
+    document.querySelector('#myInput').focus();
+        document.querySelector('#myInput').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+              sendMSG();
+            }
+        };
   </script>
 </html>
